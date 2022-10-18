@@ -2,6 +2,7 @@ import graphene
 import graphql_jwt
 from graphene_django.types import DjangoObjectType, ObjectType
 from django.contrib.auth.models import User
+from graphql_jwt.decorators import login_required
 
 
 class UserType(DjangoObjectType):
@@ -9,10 +10,11 @@ class UserType(DjangoObjectType):
         model = User
 
 
-class AccountQuery(ObjectType):
+class AccountsQuery(ObjectType):
     user = graphene.Field(UserType, id=graphene.ID())
 
-    def resolve_users(parent, info, **kwargs):
+    @login_required
+    def resolve_user(parent, info, **kwargs):
         id = kwargs.get('id')
         if id is not None:
             return User.objects.get(id=id)
